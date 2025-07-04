@@ -1,53 +1,54 @@
-from telegram import Bot, Update, InputFile
-from telegram.ext import CommandHandler, MessageHandler, filters, ApplicationBuilder, ContextTypes
+from telegram import Update, InputFile
+from telegram.ext import (
+    ApplicationBuilder,
+    CommandHandler,
+    ContextTypes,
+)
 import logging
 import os
-import filetype
 
-# 設定 Token 同用戶 ID
+# Token & 用戶 ID
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-ALLOWED_USER_ID = 214241911  # 你個 Telegram user ID
+ALLOWED_USER_ID = 214241911
 
-# 設定 logging
+# Logging 設定
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 
-# 指令回覆
+# /start 指令
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("你好，我係沙田賽馬智能助理！你可以輸入觀察、評語或賽馬問題，我會自動分析。")
-
-# 處理文字輸入
-async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ALLOWED_USER_ID:
         return
-    text = update.message.text
-    print(f"收到用戶輸入：{text}")
-    await update.message.reply_text(f"✅ 已收到你嘅觀察：「{text}」，AI 模型會即時更新分析結果。")
+    await update.message.reply_text("你好，我係沙田賽馬智能助理！輸入 /我要3T報表 可獲取 Excel 分析。")
 
-# 處理圖片輸入
-async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+# /我要3T報表 指令
+async def send_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ALLOWED_USER_ID:
         return
-    photo_file = await update.message.photo[-1].get_file()
-    file_path = "/tmp/temp.jpg"
-    await photo_file.download_to_drive(file_path)
-
-    kind = filetype.guess(file_path)
-    if kind:
-        extension = kind.extension
+    file_path = "output/3t_report.xlsx"
+    if os.path.exists(file_path):
+        await update.message.reply_document(document=InputFile(file_path))
     else:
-        extension = "unknown"
+        await update.message.reply_text("⚠️ 暫時搵唔到報表 output/3t_report.xlsx")
 
-    await update.message.reply_text(f"📸 圖片已接收（格式：{extension}），稍後會分析！")
-
-# 主程式
-if __name__ == '__main__':
+# 主函數 - 啟動 Webhook 伺服器
+async def main():
     app = ApplicationBuilder().token(TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
-    app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
+    app.add_handler(CommandHandler("我要3T報表", send_excel))
 
-    app.run_polling()
+    # 設定 Webhook URL
+    webhook_url = "https://你的-render子域名.onrender.com/webhook"  # ⬅️ 必須改成你實際 render 子域名！
+    await app.bot.set_webhook(webhook_url)
+
+    await app.run_webhook(
+        listen="0.0.0.0",
+        port=int(os.environ.get("PORT", 8888)),
+        webhook_path="/webhook",
+    )
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())
