@@ -5,7 +5,7 @@ import os
 import filetype
 
 # 設定 Token 同用戶 ID
-TOKEN = "7386971571:AAHk_xIj4dekByYNlHUqhGSWAzCqhLojWpU"
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 ALLOWED_USER_ID = 214241911  # 你個 Telegram user ID
 
 # 設定 logging
