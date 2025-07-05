@@ -37,7 +37,7 @@ async def main():
     app = ApplicationBuilder().token(TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("我要3T報表", send_excel))
+    app.add_handler(CommandHandler("get3t", send_excel))
 
     # 設定 Webhook URL
     webhook_url = webhook_url = "https://shatin-vps-deploy.onrender.com/webhook"  # ⬅️ 必須改成你實際 render 子域名！
