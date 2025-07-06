@@ -1,4 +1,0 @@
-# render.yaml - dummy config
-services:
-  - type: web
-    name: shatin-vps-deploy
