@@ -29,7 +29,7 @@ async def send_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     filepath = "output/3t_report.xlsx"
     if os.path.exists(filepath):
         with open(filepath, "rb") as f:
-            await update.message.reply_document(document=InputFile(f, filename="3T報表.xlsx"))
+        await update.message.reply_document(document=InputFile(f, filename="3t_report.xlsx"))
     else:
         await update.message.reply_text("報表暫未準備好，請稍後再試。")
 
