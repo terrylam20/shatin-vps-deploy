@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: shatin-racing-bot
+    env: python
+    plan: free
+    buildCommand: ""
+    startCommand: "python main.py"
+    envVars:
+      - key: BOT_TOKEN
+        value: 7386971571:AAExoA9q7RhREOzR_edIbBLAyhRRZg-9BsA
+    
