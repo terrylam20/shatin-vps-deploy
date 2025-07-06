@@ -1,12 +1,11 @@
-
 import logging
 from telegram import Update, InputFile
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 import os
 
-# 設定 Token 同用戶 ID
-TOKEN = "7386971571:AAExoA9q7RhREOzR_edIbBLAyhRRZg-9BsA"
-ALLOWED_USER_ID = 214241911  # 你個 Telegram user ID
+# 設定 Token 同用戶 ID（建議你用環境變數）
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+ALLOWED_USER_ID = int(os.getenv("TELEGRAM_USER_ID"))
 
 # 設定 logging
 logging.basicConfig(
@@ -38,5 +37,5 @@ async def send_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 if __name__ == "__main__":
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("我要3T報表", send_excel))
+    app.add_handler(CommandHandler("我要3T報表", send_excel))  # ✅ 修正左呢行
     app.run_polling()
