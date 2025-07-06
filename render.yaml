@@ -1,10 +1,14 @@
 services:
-  - type: worker
+  - type: web
     name: shatin-vps-deploy
-    runtime: python
+    env: python
     plan: free
-    buildCommand: ""
-    startCommand: python3 src/main.py
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
     envVars:
-      - key: TELEGRAM_BOT_TOKEN
-        value: 7386971571:AAExoA9q7RhREOzR_edIbBLAyhRRZg-9BsA
+      - key: TELEGRAM_TOKEN
+        value: 你的 Bot Token（例如 7386xxxx:AA...）
+      - key: TELEGRAM_USER_ID
+        value: 214241911
+      - key: WEBHOOK_URL
+        value: https://你的-render-url.onrender.com
