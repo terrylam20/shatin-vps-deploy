@@ -37,5 +37,5 @@ async def send_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 if __name__ == "__main__":
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("我要3T報表", send_excel))
+    app.add_handler(CommandHandler("get3t", send_excel))
     app.run_polling()
