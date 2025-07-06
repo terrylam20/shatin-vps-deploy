@@ -1,11 +1,10 @@
 import logging
-import os
 from telegram import Update, InputFile
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-# ✅ 從環境變數讀取 Token 同 User ID
-TOKEN = os.getenv("TELEGRAM_TOKEN")
-ALLOWED_USER_ID = int(os.getenv("TELEGRAM_USER_ID", "0"))
+# ✅ Token 同用戶 ID（臨時寫死，方便你 debug）
+TOKEN = "7386971571:AAExoA9q7RhREOzR_edIbBLAyhRRZg-9BsA"
+ALLOWED_USER_ID = 214241911
 
 # ✅ Logging 設定
 logging.basicConfig(
@@ -27,15 +26,14 @@ async def send_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     filepath = "output/3t_report.xlsx"
-    if os.path.exists(filepath):
+    try:
         with open(filepath, "rb") as f:
             await update.message.reply_document(document=InputFile(f, filename="3t_report.xlsx"))
-    else:
+    except FileNotFoundError:
         await update.message.reply_text("報表暫未準備好，請稍後再試。")
 
-# ✅ 主程式入口
+# ✅ 主程式
 if __name__ == "__main__":
-    print("TELEGRAM_TOKEN =", repr(TOKEN))  # ✅ debug: check token
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("get3t", send_excel))
