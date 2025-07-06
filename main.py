@@ -20,10 +20,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     await update.message.reply_text("你好，我係沙田賽馬 AI 助理！輸入 /get3t 即可獲取今日報表。")
 
-# ✅ /ping 指令（用作確認 bot 是否啟動成功）
-async def ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("✅ 我仲喺度，系統運作正常！")
-
 # ✅ /get3t 指令
 async def send_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ALLOWED_USER_ID:
@@ -39,8 +35,8 @@ async def send_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # ✅ 主程式入口
 if __name__ == "__main__":
+    print("TELEGRAM_TOKEN =", repr(TOKEN))  # ✅ debug: check token
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("ping", ping))
     app.add_handler(CommandHandler("get3t", send_excel))
     app.run_polling()
