@@ -7,8 +7,8 @@ services:
     startCommand: python main.py
     envVars:
       - key: TELEGRAM_TOKEN
-        value: 你的 Bot Token（例如 7386xxxx:AA...）
+        value: 7386971571:AAExoA9q7RhREOzR_edIbBLAyhRRZg-9BsA
       - key: TELEGRAM_USER_ID
         value: 214241911
       - key: WEBHOOK_URL
-        value: https://你的-render-url.onrender.com
+        value: https://shatin-vps-deploy.onrender.com
