@@ -1,26 +1,26 @@
 import logging
+import os
 from telegram import Update, InputFile
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
-import os
 
-# 設定 Token 同用戶 ID（建議你用環境變數）
-TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-ALLOWED_USER_ID = int(os.getenv("TELEGRAM_USER_ID"))
+# ✅ 從環境變數讀取 Token 同 User ID
+TOKEN = os.getenv("TELEGRAM_TOKEN")
+ALLOWED_USER_ID = int(os.getenv("TELEGRAM_USER_ID", "0"))
 
-# 設定 logging
+# ✅ Logging 設定
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
 
-# 指令 /start
+# ✅ /start 指令
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ALLOWED_USER_ID:
         await update.message.reply_text("未經授權。")
         return
-    await update.message.reply_text("你好，我係沙田賽馬 AI 助理！可以輸入 /我要3T報表")
+    await update.message.reply_text("你好，我係沙田賽馬 AI 助理！你可以輸入 /我要3T報表 取得 Excel 文件。")
 
-# 指令 /我要3T報表
+# ✅ /我要3T報表 指令
 async def send_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ALLOWED_USER_ID:
         await update.message.reply_text("未經授權。")
@@ -33,9 +33,9 @@ async def send_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("報表未準備好。")
 
-# 主程式入口
+# ✅ 主程式
 if __name__ == "__main__":
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("我要3T報表", send_excel))  # ✅ 修正左呢行
+    app.add_handler(CommandHandler("我要3T報表", send_excel))  # 中文指令
     app.run_polling()
