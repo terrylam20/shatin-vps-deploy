@@ -1,4 +1,0 @@
-cron:
-  - name: daily-shatin-analysis
-    schedule: "0 0 * * *"  # 每日香港時間早上10點（UTC+8 = UTC 2:00）
-    command: "python main.py"
