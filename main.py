@@ -1,5 +1,6 @@
 import os
-from telegram import Update
+import asyncio
+from telegram import Update, Bot
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 from dotenv import load_dotenv
 
@@ -27,12 +28,18 @@ async def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text="❌ 搵唔到報表檔案：output/3t_report.xlsx"
         )
 
-# ✅ 正確主函式：唔再用 async def + asyncio.run
+# ✅ 主函式：註冊 Webhook 並啟動
 def main():
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler("get3t", send_3t_excel))
 
-    # ✅ 使用 webhook 正確方式
+    # ✅ 第一次部署必需：向 Telegram 註冊 Webhook
+    async def setup():
+        bot = Bot(token=TOKEN)
+        await bot.set_webhook(url=WEBHOOK_URL)
+    asyncio.run(setup())
+
+    # ✅ 啟動 Webhook 伺服器
     app.run_webhook(
         listen="0.0.0.0",
         port=int(os.environ.get("PORT", 8080)),
