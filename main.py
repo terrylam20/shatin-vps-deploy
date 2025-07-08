@@ -36,12 +36,14 @@ async def main():
 
     app.add_handler(CommandHandler("get3t", send_3t_excel))
 
-    # 啟動 webhook
     await app.bot.set_webhook(url=WEBHOOK_URL)
-    await app.initialize()
-    await app.start()
-    await app.updater.start_polling()
-    await app.updater.idle()
+
+    # ✅ 正確 webhook 方式
+    await app.run_webhook(
+        listen="0.0.0.0",
+        port=int(os.environ.get("PORT", 8080)),
+        webhook_url=WEBHOOK_URL
+    )
 
 if __name__ == "__main__":
     import asyncio
