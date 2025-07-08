@@ -6,14 +6,12 @@ from dotenv import load_dotenv
 # ⬇️ 載入 .env 變數（可選）
 load_dotenv()
 
-# ✅ 你嘅 Token + Chat ID
+# ✅ Token、Chat ID、Webhook URL
 TOKEN = "7386971571:AAG9mg98gV-64RSrYqVGwP46EPo1cF1XWYA"
 CHAT_ID = 214241911
-
-# ✅ Webhook URL（Render HTTPS 連結）
 WEBHOOK_URL = "https://shatin-vps-deploy.onrender.com"
 
-# 📦 指令處理：傳送 3T 報表
+# 📦 傳送 3T Excel 檔案
 async def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     file_path = "output/3t_report.xlsx"
     if os.path.exists(file_path):
@@ -30,18 +28,18 @@ async def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text="❌ 搵唔到報表檔案：output/3t_report.xlsx"
         )
 
-# ✅ 主函式（async + webhook 模式）
+# ✅ 主函式：Webhook 模式
 async def main():
     app = ApplicationBuilder().token(TOKEN).build()
 
+    # 加入指令處理器
     app.add_handler(CommandHandler("get3t", send_3t_excel))
 
+    # 設定 webhook 並啟動服務
     await app.bot.set_webhook(url=WEBHOOK_URL)
-
-    # ✅ 正確 webhook 方式
     await app.run_webhook(
         listen="0.0.0.0",
-        port=int(os.environ.get("PORT", 8080)),
+        port=10000,
         webhook_url=WEBHOOK_URL
     )
 
