@@ -1,81 +1,51 @@
 import os
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+from dotenv import load_dotenv
 
-# ✅ Telegram Bot Token（直接寫入）
+# ⬇️ 載入 .env 變數（可選）
+load_dotenv()
+
+# ✅ 你嘅 Token + Chat ID
 TOKEN = "7386971571:AAG9mg98gV-64RSrYqVGwP46EPo1cF1XWYA"
+CHAT_ID = 214241911
 
-# ✅ Webhook 相關設定
-PORT = int(os.environ.get("PORT", 8443))
-WEBHOOK_URL = f"https://shatin-vps-deploy.onrender.com"
+# ✅ Webhook URL（Render HTTPS 連結）
+WEBHOOK_URL = "https://shatin-vps-deploy.onrender.com"
 
-# ✅ 指令處理：傳送 3T 報表
+# 📦 指令處理：傳送 3T 報表
 async def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     file_path = "output/3t_report.xlsx"
     if os.path.exists(file_path):
-        try:
+        with open(file_path, "rb") as doc:
             await context.bot.send_document(
                 chat_id=update.effective_chat.id,
-                document=open(file_path, "rb"),
+                document=doc,
                 filename="3T_報表.xlsx",
                 caption="📊 以下係最新三T報表"
-            )
-        except Exception as e:
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text=f"❌ 傳送失敗：{str(e)}"
             )
     else:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="❌ 找不到報表檔案：output/3t_report.xlsx"
-        )
-        except Exception as e:
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=f"❌ 傳送失敗：{e}")
-    else:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="❌ 找不到報表檔案：output/3t_report.xlsx")async def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    file_path = "output/3t_report.xlsx"
-    if os.path.exists(file_path):
-        try:
-            await context.bot.send_document(
-                chat_id=update.effective_chat.id,
-                document=open(file_path, "rb"),
-                filename="3T_報表.xlsx",
-                caption="📊 以下係最新三T報表"
-            )
-        except Exception as e:
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=f"❌ 傳送失敗：{e}")
-    else:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="❌ 找不到報表檔案：output/3t_report.xlsx") def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    file_path = "output/3t_report.xlsx"
-    if os.path.exists(file_path):
-        await context.bot.send_document(
-            chat_id=update.effective_chat.id,
-            document=open(file_path, "rb"),
-            filename="3T_報表.xlsx",
-            caption="📊 以下係最新三T報表"
-        )
-    else:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text="⚠️ 搵唔到報表！請先產生 `output/3t_report.xlsx`"
+            text="❌ 搵唔到報表檔案：output/3t_report.xlsx"
         )
 
-# ✅ 主程序（async webhook）
+# ✅ 主函式（async + webhook 模式）
 async def main():
     app = ApplicationBuilder().token(TOKEN).build()
 
-    # ➕ 加入指令 handler
     app.add_handler(CommandHandler("get3t", send_3t_excel))
 
-    # ✅ 初始化 + 啟動 Webhook
+    # 啟動 webhook
+    await app.bot.set_webhook(url=WEBHOOK_URL)
     await app.initialize()
     await app.start()
-    await app.bot.set_webhook(url=WEBHOOK_URL)
-    print("✅ Bot 已透過 Webhook 成功啟動")
     await app.updater.start_polling()
     await app.updater.idle()
 
 if __name__ == "__main__":
     import asyncio
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except Exception as e:
+        print(f"❌ 錯誤：{e}")
