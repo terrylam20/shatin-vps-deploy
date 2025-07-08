@@ -13,6 +13,32 @@ WEBHOOK_URL = f"https://shatin-vps-deploy.onrender.com"
 async def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     file_path = "output/3t_report.xlsx"
     if os.path.exists(file_path):
+        try:
+            await context.bot.send_document(
+                chat_id=update.effective_chat.id,
+                document=open(file_path, "rb"),
+                filename="3T_報表.xlsx",
+                caption="📊 以下係最新三T報表"
+            )
+        except Exception as e:
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=f"❌ 傳送失敗：{e}")
+    else:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="❌ 找不到報表檔案：output/3t_report.xlsx")async def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    file_path = "output/3t_report.xlsx"
+    if os.path.exists(file_path):
+        try:
+            await context.bot.send_document(
+                chat_id=update.effective_chat.id,
+                document=open(file_path, "rb"),
+                filename="3T_報表.xlsx",
+                caption="📊 以下係最新三T報表"
+            )
+        except Exception as e:
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=f"❌ 傳送失敗：{e}")
+    else:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="❌ 找不到報表檔案：output/3t_report.xlsx") def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    file_path = "output/3t_report.xlsx"
+    if os.path.exists(file_path):
         await context.bot.send_document(
             chat_id=update.effective_chat.id,
             document=open(file_path, "rb"),
