@@ -7,9 +7,9 @@ from dotenv import load_dotenv
 # ✅ 載入環境變數
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN", "")
-WEBHOOK_URL = os.getenv("WEBHOOK_URL", "")
+WEBHOOK_URL = os.getenv("WEBHOOK_URL", "")  # https://xxx.onrender.com/webhook
 
-# ✅ 啟動時建立測試報表（只做一次）
+# ✅ 建立測試報表
 def generate_test_report():
     os.makedirs("output", exist_ok=True)
     file_path = os.path.join("output", "3t_report.xlsx")
@@ -21,49 +21,46 @@ def generate_test_report():
             "值搏率": [1.25, 2.15, 0.98]
         })
         df.to_excel(file_path, index=False)
-        print("✅ 測試報表已建立：output/3t_report.xlsx")
+        print("✅ 測試報表已建立")
     else:
-        print("ℹ️ 已存在報表：output/3t_report.xlsx")
+        print("📄 已存在報表")
 
-# ✅ 指令回應邏輯：傳送報表
+# ✅ 傳送報表指令
 async def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     file_path = os.path.join("output", "3t_report.xlsx")
     if os.path.exists(file_path):
-        with open(file_path, "rb") as doc:
+        with open(file_path, "rb") as f:
             await context.bot.send_document(
                 chat_id=update.effective_chat.id,
-                document=doc,
+                document=f,
                 filename="3T_Report.xlsx",
-                caption="📊 以下係最新三T報表（測試）"
+                caption="📊 以下係最新三T報表"
             )
-            print("✅ 已傳送報表至 Telegram 使用者")
     else:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
             text="❌ 搵唔到報表：output/3t_report.xlsx"
         )
-        print("⚠️ 報表不存在，請確認 output 資料夾")
 
-# ✅ Webhook 註冊
+# ✅ 註冊 Webhook
 async def setup_webhook(app):
     bot = Bot(token=TOKEN)
     await bot.set_webhook(url=WEBHOOK_URL)
-    print(f"🌐 Webhook 設定完成：{WEBHOOK_URL}")
+    print(f"🌐 Webhook 已設定：{WEBHOOK_URL}")
 
-# ✅ 主啟動函式
+# ✅ 主程式
 def main():
-    print("🚀 正在啟動 Telegram Bot...")
+    print("🚀 啟動中...")
     generate_test_report()
 
     app = ApplicationBuilder().token(TOKEN).post_init(setup_webhook).build()
     app.add_handler(CommandHandler("get3t", send_3t_excel))
-    print("🔗 指令 /get3t 已註冊")
+    print("📩 指令 /get3t 已註冊")
 
     app.run_webhook(
         listen="0.0.0.0",
         port=int(os.environ.get("PORT", 8080)),
-        path="/webhook",  # ✅ 加入這行（修正錯誤）
-        webhook_url=WEBHOOK_URL
+        webhook_path="/webhook"  # ✅ 對應 Telegram webhook endpoint
     )
 
 if __name__ == "__main__":
