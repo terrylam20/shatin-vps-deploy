@@ -8,7 +8,6 @@ load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN", "7386971571:AAG9mg98gV-64RSrYqVGwP46EPo1cF1XWYA")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://shatin-vps-deploy.onrender.com")
 
-# 傳送報表
 async def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     file_path = "output/3t_report.xlsx"
     if os.path.exists(file_path):
@@ -25,7 +24,7 @@ async def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text="❌ 搵唔到報表檔案：output/3t_report.xlsx"
         )
 
-# 正確 Webhook 設定方式
+# ✅ 正確 webhook 設定方式（用 post_init）
 async def setup_webhook(app):
     bot = Bot(token=TOKEN)
     await bot.set_webhook(url=WEBHOOK_URL)
@@ -33,7 +32,6 @@ async def setup_webhook(app):
 def main():
     app = ApplicationBuilder().token(TOKEN).post_init(setup_webhook).build()
     app.add_handler(CommandHandler("get3t", send_3t_excel))
-
     app.run_webhook(
         listen="0.0.0.0",
         port=int(os.environ.get("PORT", 8080)),
