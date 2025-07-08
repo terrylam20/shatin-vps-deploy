@@ -7,7 +7,7 @@ from aiohttp import web
 import pandas as pd
 import os
 
-TOKEN = "7386971571:AAExoA9q7RhREOzR_edIbBLAyhRRZg-9BsA"
+TOKEN = "7386971571:AAG9mg98gV-64RSrYqVGwP46EPo1cF1XWYA"
 CHAT_ID = "214241911"
 
 logging.basicConfig(
