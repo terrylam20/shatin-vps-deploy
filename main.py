@@ -62,6 +62,7 @@ def main():
     app.run_webhook(
         listen="0.0.0.0",
         port=int(os.environ.get("PORT", 8080)),
+        path="/webhook",  # ✅ 加入這行（修正錯誤）
         webhook_url=WEBHOOK_URL
     )
 
