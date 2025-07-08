@@ -4,11 +4,12 @@ from telegram import Update, Bot
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 from dotenv import load_dotenv
 
+# ✅ 讀取環境變數
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN", "")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "")
 
-# ✅ 啟動時自動建立一份測試報表
+# ✅ 啟動時自動建立測試報表（如不存在）
 def generate_test_report():
     os.makedirs("output", exist_ok=True)
     file_path = os.path.join("output", "3t_report.xlsx")
@@ -22,7 +23,7 @@ def generate_test_report():
         df.to_excel(file_path, index=False)
         print("✅ 測試報表已建立：output/3t_report.xlsx")
 
-# ✅ /get3t 指令邏輯
+# ✅ /get3t 指令回應：傳送報表或報錯
 async def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     file_path = os.path.join("output", "3t_report.xlsx")
     if os.path.exists(file_path):
@@ -41,13 +42,13 @@ async def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         print("⚠️ 報表不存在。")
 
-# ✅ Webhook 設定
+# ✅ Webhook 註冊
 async def setup_webhook(app):
     bot = Bot(token=TOKEN)
     await bot.set_webhook(url=WEBHOOK_URL)
     print(f"🌐 Webhook 設定完成：{WEBHOOK_URL}")
 
-# ✅ 主啟動流程
+# ✅ 主程式入口
 def main():
     print("🚀 啟動 Telegram Bot 中...")
     generate_test_report()
