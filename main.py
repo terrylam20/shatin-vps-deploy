@@ -1,58 +1,48 @@
 import os
-import logging
-from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
-from telegram.constants import ChatAction
 import pandas as pd
+from telegram import Update
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
+import datetime
 
-# ✅ Telegram Token 與 Chat ID
-TOKEN = "7386971571:AAF3fY1vIRgBMnGxcEOBlAAca_q5HWr5iLY"
-CHAT_ID = 214241911
+TOKEN = os.getenv("BOT_TOKEN", "your_token_here")  # 建議你改返環境變數
+CHAT_ID = os.getenv("CHAT_ID", "214241911")        # 建議你改返環境變數
+URL = os.getenv("WEBHOOK_URL", "https://your-domain.onrender.com/")  # 記得最後有 "/"
 
-# ✅ 報表檔案路徑
-OUTPUT_FOLDER = "output"
-REPORT_FILENAME = "3t_report.xlsx"
-REPORT_PATH = os.path.join(OUTPUT_FOLDER, REPORT_FILENAME)
+from openpyxl import Workbook
 
-# ✅ 日誌設定
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-)
+# 建立假報表，方便測試傳送
+def create_report(path='output/3t_report.xlsx'):
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "3T報表"
+    ws['A1'] = '馬匹'
+    ws['B1'] = '值搏率'
+    ws.append(['喜蓮勇感', 1.8])
+    ws.append(['紅衣醒神', 2.3])
+    wb.save(path)
 
-# ✅ 確保 output 資料夾存在
-os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+# /get3t 指令
+async def get3t_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    file_path = 'output/3t_report.xlsx'
+    if not os.path.exists(file_path):
+        create_report(file_path)
+    await context.bot.send_document(
+        chat_id=update.effective_chat.id,
+        document=open(file_path, 'rb'),
+        filename="3t_report.xlsx",
+        caption="📊 今日3T報表送上！"
+    )
 
-# ✅ 建立示範 Excel 報表（如未存在）
-if not os.path.isfile(REPORT_PATH):
-    df = pd.DataFrame({
-        "馬匹": ["馬王", "冷腳", "爆冷王"],
-        "值搏率": [1.5, 2.1, 3.8],
-        "建議下注": ["主腳", "拖腳", "拖腳"]
-    })
-    df.to_excel(REPORT_PATH, index=False)
+# 建立 bot app
+app = ApplicationBuilder().token(TOKEN).build()
 
-# ✅ 處理 /start 指令
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🎉 歡迎使用 Shatin Racing Bot！輸入 /get3t 可獲取今日三T報表。")
+# 指令處理器
+app.add_handler(CommandHandler("get3t", get3t_handler))
 
-# ✅ 處理 /get3t 指令：傳送 Excel
-async def get_3t_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    try:
-        await update.message.chat.send_action(action=ChatAction.UPLOAD_DOCUMENT)
-        await update.message.reply_document(document=open(REPORT_PATH, "rb"))
-    except Exception as e:
-        await update.message.reply_text(f"❌ 發生錯誤：{str(e)}")
-
-# ✅ 主程序：建立應用程式
-if __name__ == "__main__":
-    app = ApplicationBuilder().token(TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("get3t", get_3t_report))
-
-    # ✅ 設定 Webhook（Render 會自動處理 URL，無需 hardcode）
-    app.run_webhook(
+# webhook 模式（Render 用）
+app.run_webhook(
     listen="0.0.0.0",
-    port=10000
+    port=10000,
     webhook_url=URL + TOKEN,
     secret_token=TOKEN
 )
