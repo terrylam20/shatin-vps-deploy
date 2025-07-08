@@ -1,65 +1,45 @@
-import os
 import logging
 from telegram import Update, InputFile
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+from telegram.ext import (
+    ApplicationBuilder, CommandHandler, ContextTypes
+)
 from aiohttp import web
+import pandas as pd
+import os
 
-# === Logging 設定 ===
+TOKEN = "7386971571:AAExoA9q7RhREOzR_edIbBLAyhRRZg-9BsA"
+CHAT_ID = "214241911"
+
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO,
 )
 
-# === 讀取環境變數 ===
-TOKEN = os.environ.get("BOT_TOKEN")
-WEBHOOK_URL = os.environ.get("WEBHOOK_URL")
-PORT = int(os.environ.get("PORT", 8443))
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("🎉 Shatin Racing Bot 已啟動！")
 
-# === /start 指令 ===
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text("🎉 你好！請輸入 /get3t 獲取三T報表 Excel 文件！")
+async def get3t(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    file_path = "output/3t_report.xlsx"
+    if os.path.exists(file_path):
+        with open(file_path, "rb") as f:
+            await update.message.reply_document(document=InputFile(f), filename="3T_分析報表.xlsx")
+    else:
+        await update.message.reply_text("❌ 未搵到報表檔案 output/3t_report.xlsx")
 
-# === /get3t 指令 ===
-async def send_excel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    try:
-        # 自動建立 output 資料夾（避免錯誤）
-        os.makedirs("output", exist_ok=True)
+async def handle_request(request):
+    return web.Response(text="OK")
 
-        file_path = 'output/3t_report.xlsx'
-        if not os.path.isfile(file_path):
-            await update.message.reply_text("❌ 找不到報表：output/3t_report.xlsx")
-            return
-
-        with open(file_path, 'rb') as f:
-            await update.message.reply_document(
-                document=InputFile(f, filename="3T報表.xlsx"),
-                caption="📊 三T報表已送達，祝你好運！🍀"
-            )
-
-    except Exception as e:
-        logging.error(f"發送 Excel 發生錯誤: {e}")
-        await update.message.reply_text(f"⚠️ 發生錯誤：{e}")
-
-# === 主程序 ===
-async def main():
+def main():
     app = ApplicationBuilder().token(TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("get3t", send_excel))
-
-    # Webhook 伺服器啟動
-    async def handler(request):
-        data = await request.json()
-        update = Update.de_json(data, app.bot)
-        await app.process_update(update)
-        return web.Response()
+    app.add_handler(CommandHandler("get3t", get3t))
 
     app.run_webhook(
         listen="0.0.0.0",
-        port=PORT,
-        webhook_url=f"{WEBHOOK_URL}/webhook"
+        port=int(os.environ.get("PORT", 10000)),
+        webhook_url="https://shatin-vps-deploy.onrender.com"
     )
 
-if __name__ == '__main__':
-    import asyncio
-    asyncio.run(main())
+if __name__ == "__main__":
+    main()
