@@ -21,6 +21,16 @@ async def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 caption="📊 以下係最新三T報表"
             )
         except Exception as e:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=f"❌ 傳送失敗：{e}"
+            )
+    else:
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="❌ 找不到報表檔案：output/3t_report.xlsx"
+        )
+        except Exception as e:
             await context.bot.send_message(chat_id=update.effective_chat.id, text=f"❌ 傳送失敗：{e}")
     else:
         await context.bot.send_message(chat_id=update.effective_chat.id, text="❌ 找不到報表檔案：output/3t_report.xlsx")async def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
