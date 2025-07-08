@@ -1,10 +1,6 @@
 import os
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
-from dotenv import load_dotenv
-
-# ⬇️ 載入 .env 變數（可選）
-load_dotenv()
 
 # ✅ 你嘅 Token + Chat ID
 TOKEN = "7386971571:AAG9mg98gV-64RSrYqVGwP46EPo1cF1XWYA"
