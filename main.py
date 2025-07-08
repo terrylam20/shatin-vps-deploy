@@ -1,17 +1,14 @@
 import os
-import asyncio
 from telegram import Update, Bot
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 from dotenv import load_dotenv
 
-# ⬇️ 載入 .env 變數（可選）
 load_dotenv()
 
-# ✅ 你嘅 Token + Webhook URL
 TOKEN = os.getenv("BOT_TOKEN", "7386971571:AAG9mg98gV-64RSrYqVGwP46EPo1cF1XWYA")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://shatin-vps-deploy.onrender.com")
 
-# 📦 指令處理：傳送 3T 報表
+# 📦 傳送報表
 async def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     file_path = "output/3t_report.xlsx"
     if os.path.exists(file_path):
@@ -19,7 +16,7 @@ async def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.send_document(
                 chat_id=update.effective_chat.id,
                 document=doc,
-                filename="3T_報表.xlsx",
+                filename="3T_Report.xlsx",
                 caption="📊 以下係最新三T報表"
             )
     else:
@@ -28,18 +25,15 @@ async def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text="❌ 搵唔到報表檔案：output/3t_report.xlsx"
         )
 
-# ✅ 主函式：註冊 Webhook 並啟動
+# ✅ 用 post_init 方式設置 webhook
+async def setup_webhook(app):
+    bot = Bot(token=TOKEN)
+    await bot.set_webhook(url=WEBHOOK_URL)
+
 def main():
-    app = ApplicationBuilder().token(TOKEN).build()
+    app = ApplicationBuilder().token(TOKEN).post_init(setup_webhook).build()
     app.add_handler(CommandHandler("get3t", send_3t_excel))
 
-    # ✅ 第一次部署：向 Telegram 註冊 Webhook URL
-    async def setup():
-        bot = Bot(token=TOKEN)
-        await bot.set_webhook(url=WEBHOOK_URL)
-    asyncio.run(setup())
-
-    # ✅ 啟動 Webhook
     app.run_webhook(
         listen="0.0.0.0",
         port=int(os.environ.get("PORT", 8080)),
