@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 # ⬇️ 載入 .env 變數（可選）
 load_dotenv()
 
-# ✅ 你嘅 Token + Webhook URL（可從環境變數或硬編碼）
+# ✅ 你嘅 Token + Webhook URL
 TOKEN = os.getenv("BOT_TOKEN", "7386971571:AAG9mg98gV-64RSrYqVGwP46EPo1cF1XWYA")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://shatin-vps-deploy.onrender.com")
 
@@ -33,13 +33,13 @@ def main():
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler("get3t", send_3t_excel))
 
-    # ✅ 第一次部署必需：向 Telegram 註冊 Webhook
+    # ✅ 第一次部署：向 Telegram 註冊 Webhook URL
     async def setup():
         bot = Bot(token=TOKEN)
         await bot.set_webhook(url=WEBHOOK_URL)
     asyncio.run(setup())
 
-    # ✅ 啟動 Webhook 伺服器
+    # ✅ 啟動 Webhook
     app.run_webhook(
         listen="0.0.0.0",
         port=int(os.environ.get("PORT", 8080)),
