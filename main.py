@@ -23,7 +23,7 @@ async def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except Exception as e:
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
-                text=f"❌ 傳送失敗：{e}"
+                text=f"❌ 傳送失敗：{str(e)}"
             )
     else:
         await context.bot.send_message(
