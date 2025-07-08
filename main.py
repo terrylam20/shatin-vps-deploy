@@ -52,7 +52,7 @@ if __name__ == "__main__":
     # ✅ 設定 Webhook（Render 會自動處理 URL，無需 hardcode）
     app.run_webhook(
     listen="0.0.0.0",
-    port=PORT,
+    port=10000
     webhook_url=URL + TOKEN,
     secret_token=TOKEN
 )
