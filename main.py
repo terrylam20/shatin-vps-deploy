@@ -6,9 +6,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 TOKEN = os.getenv("BOT_TOKEN", "your-bot-token")
-WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://your-app-name.onrender.com")
+WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://your-app-name.onrender.com/webhook")
 
-# 共用函數：傳送報表
 async def send_excel_report(update: Update, context: ContextTypes.DEFAULT_TYPE, file_path: str, caption: str):
     if os.path.exists(file_path):
         with open(file_path, "rb") as doc:
@@ -24,7 +23,6 @@ async def send_excel_report(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             text=f"❌ 搵唔到報表檔案：{file_path}"
         )
 
-# 指令處理函數們
 async def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await send_excel_report(update, context, "output/3t_report.xlsx", "📊 以下係最新三T報表")
 
@@ -40,7 +38,6 @@ async def send_3t_hv_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def send_3t_st_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await send_excel_report(update, context, "output/3t_report_ST_2025-07-13.xlsx", "📊 以下係沙田三T報表")
 
-# Webhook 初始化
 async def setup_webhook(app):
     bot = Bot(token=TOKEN)
     await bot.set_webhook(url=WEBHOOK_URL)
@@ -48,7 +45,6 @@ async def setup_webhook(app):
 def main():
     app = ApplicationBuilder().token(TOKEN).post_init(setup_webhook).build()
 
-    # 指令綁定
     app.add_handler(CommandHandler("get3t", send_3t_excel))
     app.add_handler(CommandHandler("gethv", send_hv_excel))
     app.add_handler(CommandHandler("getst", send_st_excel))
@@ -58,7 +54,8 @@ def main():
     app.run_webhook(
         listen="0.0.0.0",
         port=int(os.environ.get("PORT", 8080)),
-        webhook_url=WEBHOOK_URL
+        webhook_url=WEBHOOK_URL,
+        webhook_path="/webhook"  # 加返呢個 path handler
     )
 
 if __name__ == "__main__":
