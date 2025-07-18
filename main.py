@@ -1,61 +1,43 @@
 import os
-from telegram import Update, Bot
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 from dotenv import load_dotenv
+from telegram import Update
+from telegram.ext import Application, CommandHandler, ContextTypes
 
+# ✅ Load environment variables from .env
 load_dotenv()
+TOKEN = os.getenv("BOT_TOKEN")
+WEBHOOK_URL = os.getenv("WEBHOOK_URL")
+PORT = int(os.environ.get("PORT", 8443))
 
-TOKEN = os.getenv("BOT_TOKEN", "your-bot-token")
-WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://your-app-name.onrender.com/webhook")
+# ✅ 定義 /start 指令
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    await update.message.reply_text("🤖 AI 馬匹報表系統已啟動！你可以試用 /get3t 或 /testreport")
 
-async def send_excel_report(update: Update, context: ContextTypes.DEFAULT_TYPE, file_path: str, caption: str):
+# ✅ 模擬 /get3t 指令（真實情況請改成實際報表回傳）
+async def get3t(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    file_path = "output/3t_report.xlsx"
     if os.path.exists(file_path):
-        with open(file_path, "rb") as doc:
-            await context.bot.send_document(
-                chat_id=update.effective_chat.id,
-                document=doc,
-                filename=os.path.basename(file_path),
-                caption=caption
-            )
+        await update.message.reply_document(document=open(file_path, "rb"))
     else:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text=f"❌ 搵唔到報表檔案：{file_path}"
-        )
+        await update.message.reply_text("❌ 搵唔到報表檔案：output/3t_report.xlsx")
 
-async def send_3t_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await send_excel_report(update, context, "output/3t_report.xlsx", "📊 以下係最新三T報表")
+# ✅ 測試報表指令
+async def testreport(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    await update.message.reply_text("📊 測試報表已生成（模擬中），實際功能待接駁分析模組")
 
-async def send_hv_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await send_excel_report(update, context, "output/investment_report_HV_2025-07-10.xlsx", "📈 以下係快活谷投資報表")
-
-async def send_st_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await send_excel_report(update, context, "output/investment_report_ST_2025-07-13.xlsx", "📈 以下係沙田投資報表")
-
-async def send_3t_hv_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await send_excel_report(update, context, "output/3t_report_HV_2025-07-10.xlsx", "📊 以下係快活谷三T報表")
-
-async def send_3t_st_excel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await send_excel_report(update, context, "output/3t_report_ST_2025-07-13.xlsx", "📊 以下係沙田三T報表")
-
-async def setup_webhook(app):
-    bot = Bot(token=TOKEN)
-    await bot.set_webhook(url=WEBHOOK_URL)
-
+# ✅ 主程式
 def main():
-    app = ApplicationBuilder().token(TOKEN).post_init(setup_webhook).build()
+    app = Application.builder().token(TOKEN).build()
 
-    app.add_handler(CommandHandler("get3t", send_3t_excel))
-    app.add_handler(CommandHandler("gethv", send_hv_excel))
-    app.add_handler(CommandHandler("getst", send_st_excel))
-    app.add_handler(CommandHandler("get3t_hv", send_3t_hv_excel))
-    app.add_handler(CommandHandler("get3t_st", send_3t_st_excel))
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("get3t", get3t))
+    app.add_handler(CommandHandler("testreport", testreport))
 
+    # ✅ 正確使用 webhook_url
     app.run_webhook(
         listen="0.0.0.0",
-        port=int(os.environ.get("PORT", 8080)),
-        webhook_url=WEBHOOK_URL,
-        webhook_path="/webhook"  # 加返呢個 path handler
+        port=PORT,
+        webhook_url=WEBHOOK_URL
     )
 
 if __name__ == "__main__":
